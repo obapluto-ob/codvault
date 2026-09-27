@@ -1,29 +1,29 @@
 import { Link } from 'react-router-dom';
 import { Crosshair, Tag, Swords, Sliders, Layout, BookOpen, User, Trophy } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
-import { codesApi, weaponsApi, tipsApi } from '../lib/api';
+import { weaponsApi, tipsApi } from '../lib/api';
 import { SeoHead } from '../components/ui';
 
 const FEATURES = [
   {
-    to: '/codes', icon: <Tag size={22} />, title: 'Redeem Codes',
-    desc: 'Active & expired codes with rewards, platforms and seasons.',
-    img: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=600&q=80',
-  },
-  {
     to: '/weapons', icon: <Swords size={22} />, title: 'Weapon Database',
-    desc: 'Stats, recommended loadouts and attachment guides.',
+    desc: 'Stats and recommended loadouts for every CODM weapon.',
     img: 'https://images.unsplash.com/photo-1511512578047-dfb367046420?w=600&q=80',
   },
   {
-    to: '/sensitivity', icon: <Sliders size={22} />, title: 'Sensitivity',
-    desc: 'Live calculator + presets for every playstyle and device.',
+    to: '/sensitivity', icon: <Sliders size={22} />, title: 'Sensitivity Calculator',
+    desc: 'Enter your FPS sens — all scopes auto-calculated using CODM FOV ratios.',
     img: 'https://images.unsplash.com/photo-1593305841991-05c297ba4575?w=600&q=80',
   },
   {
-    to: '/hud', icon: <Layout size={22} />, title: 'HUD & Settings',
-    desc: 'Visual HUD builder with phone mockup preview by playstyle.',
-    img: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=600&q=80',
+    to: '/tournaments', icon: <Trophy size={22} />, title: 'Tournaments',
+    desc: 'Register for live CODM tournaments with your UID. Brackets on Challonge.',
+    img: 'https://images.unsplash.com/photo-1542751110-97427bbecf20?w=600&q=80',
+  },
+  {
+    to: '/profile', icon: <User size={22} />, title: 'Player Profile',
+    desc: 'Look up any player by UID — real nickname, rank and level from CODM.',
+    img: 'https://images.unsplash.com/photo-1614294149010-950b698f72c0?w=600&q=80',
   },
   {
     to: '/guides', icon: <BookOpen size={22} />, title: 'Guides & Secrets',
@@ -31,14 +31,9 @@ const FEATURES = [
     img: 'https://images.unsplash.com/photo-1560253023-3ec5d502959f?w=600&q=80',
   },
   {
-    to: '/profile', icon: <User size={22} />, title: 'My Profile',
-    desc: 'Look up real CODM stats by UID and save your sensitivity and HUD presets.',
-    img: 'https://images.unsplash.com/photo-1614294149010-950b698f72c0?w=600&q=80',
-  },
-  {
-    to: '/tournaments', icon: <Trophy size={22} />, title: 'Tournaments',
-    desc: 'Register for live CODM tournaments with your UID. Brackets powered by Challonge.',
-    img: 'https://images.unsplash.com/photo-1542751110-97427bbecf20?w=600&q=80',
+    to: '/codes', icon: <Tag size={22} />, title: 'Redeem Codes',
+    desc: 'Community-submitted codes reviewed before going live. Submit one you found.',
+    img: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=600&q=80',
   },
 ];
 
@@ -52,14 +47,13 @@ const BG_IMAGES = [
 ];
 
 function LiveStats() {
-  const { data: codes }   = useQuery({ queryKey: ['codes-stat'],   queryFn: () => codesApi.list({ status: 'active', limit: 1 }),  staleTime: 60_000 });
-  const { data: weapons } = useQuery({ queryKey: ['weapons-stat'], queryFn: () => weaponsApi.list({}),                            staleTime: 60_000 });
-  const { data: guides }  = useQuery({ queryKey: ['guides-stat'],  queryFn: () => tipsApi.list({ limit: 1 }),                     staleTime: 60_000 });
+  const { data: weapons } = useQuery({ queryKey: ['weapons-stat'], queryFn: () => weaponsApi.list({}), staleTime: 60_000 });
+  const { data: guides }  = useQuery({ queryKey: ['guides-stat'],  queryFn: () => tipsApi.list({ limit: 1 }), staleTime: 60_000 });
 
   const stats = [
-    { label: 'Active Codes', value: codes?.total   ?? '—' },
-    { label: 'Weapons',      value: weapons?.length ?? '—' },
-    { label: 'Guides',       value: guides?.total   ?? '—' },
+    { label: 'Weapons', value: weapons?.length ?? '—' },
+    { label: 'Guides',  value: guides?.total   ?? '—' },
+    { label: 'Live Tournaments', value: '✓' },
   ];
 
   return (
@@ -115,11 +109,11 @@ export default function Home() {
           <LiveStats />
 
           <div className="flex flex-wrap justify-center gap-3">
-            <Link to="/codes" className="btn-primary text-base px-7 py-3 shadow-[0_0_20px_rgba(245,166,35,0.4)] hover:shadow-[0_0_30px_rgba(245,166,35,0.6)]">
-              Browse Codes
-            </Link>
-            <Link to="/weapons" className="btn-ghost text-base px-7 py-3 backdrop-blur-sm">
+            <Link to="/weapons" className="btn-primary text-base px-7 py-3 shadow-[0_0_20px_rgba(245,166,35,0.4)] hover:shadow-[0_0_30px_rgba(245,166,35,0.6)]">
               Weapon Database
+            </Link>
+            <Link to="/tournaments" className="btn-ghost text-base px-7 py-3 backdrop-blur-sm">
+              Join Tournament
             </Link>
           </div>
         </div>
