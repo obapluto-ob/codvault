@@ -19,11 +19,14 @@ const PORT = process.env.PORT || 3001;
 app.use(helmet());
 app.use(cors({
   origin: (origin, cb) => {
+    // allow health checkers, curl, and same-origin requests (no origin header)
+    if (!origin) return cb(null, true);
     const allowed = [
       process.env.FRONTEND_URL,
       'http://localhost:5173',
+      'http://localhost:4173',
     ].filter(Boolean);
-    if (!origin || allowed.some(o => origin.startsWith(o))) return cb(null, true);
+    if (allowed.some(o => origin.startsWith(o))) return cb(null, true);
     cb(new Error('Not allowed by CORS'));
   },
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
