@@ -3,7 +3,7 @@ services:
     name: codvault-api
     runtime: node
     rootDir: backend
-    buildCommand: npm install --build-from-source
+    buildCommand: npm install
     startCommand: npm start
     envVars:
       - key: NODE_VERSION
