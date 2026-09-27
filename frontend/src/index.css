@@ -1,0 +1,44 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    @apply bg-cod-bg text-white antialiased;
+    min-height: 100dvh;
+  }
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { @apply bg-cod-surface; }
+  ::-webkit-scrollbar-thumb { @apply bg-cod-border rounded-full; }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-cod-accent text-black font-semibold px-4 py-2 rounded-lg hover:brightness-110 active:scale-95 transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  .btn-ghost {
+    @apply border border-cod-border text-white px-4 py-2 rounded-lg hover:bg-cod-card active:scale-95 transition-all duration-150;
+  }
+  .card {
+    @apply bg-cod-card border border-cod-border rounded-xl p-4;
+  }
+  .badge-active {
+    @apply inline-flex items-center gap-1 bg-cod-green/10 text-cod-green text-xs font-semibold px-2 py-0.5 rounded-full;
+  }
+  .badge-expired {
+    @apply inline-flex items-center gap-1 bg-cod-red/10 text-cod-red text-xs font-semibold px-2 py-0.5 rounded-full;
+  }
+  .badge-info {
+    @apply inline-flex items-center gap-1 bg-cod-blue/10 text-cod-blue text-xs font-medium px-2 py-0.5 rounded-full;
+  }
+  .input {
+    @apply bg-cod-surface border border-cod-border rounded-lg px-3 py-2 text-white placeholder-cod-muted focus:outline-none focus:border-cod-accent transition-colors w-full;
+  }
+  .stat-bar-fill {
+    @apply h-full rounded-full bg-gradient-to-r from-cod-accent to-yellow-300 transition-all duration-700;
+  }
+}
