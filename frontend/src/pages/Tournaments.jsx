@@ -214,21 +214,25 @@ function ParticipantRow({ p, isAdmin, onRemove, myUid }) {
   });
 
   const unverified = !uid || (!isFetching && (isError || !player?.nickname));
+  const verified = !!player?.nickname;
 
   return (
     <div className={`flex items-center gap-3 rounded-lg px-3 py-2 ${
       isMe ? 'bg-cod-accent/10 border border-cod-accent/40' :
+      isFetching ? 'bg-cod-surface' :
       unverified ? 'bg-cod-red/10 border border-cod-red/30' : 'bg-cod-surface'
     }`}>
       {player?.rank?.imageUrl
         ? <img src={player.rank.imageUrl} alt={player.rank.label} className="w-7 h-7 object-contain shrink-0" />
-        : <div className={`w-7 h-7 rounded-full shrink-0 flex items-center justify-center ${unverified ? 'bg-cod-red/20' : 'bg-cod-border'}`}>
-            {unverified && <AlertCircle size={14} className="text-cod-red" />}
+        : <div className={`w-7 h-7 rounded-full shrink-0 flex items-center justify-center ${
+            !isFetching && unverified ? 'bg-cod-red/20' : 'bg-cod-border'
+          }`}>
+            {!isFetching && unverified && <AlertCircle size={14} className="text-cod-red" />}
           </div>}
       <div className="flex-1 min-w-0">
         <span className="text-white text-sm font-medium truncate block">{player?.nickname || displayName}{isMe ? ' (you)' : ''}</span>
-        <span className={`text-xs ${unverified ? 'text-cod-red' : 'text-cod-muted'}`}>
-          {isFetching ? 'Verifying…' : unverified ? 'Unverified' : `${player.rank?.label || 'Unranked'} · Lv.${player.level}`}
+        <span className={`text-xs ${ !isFetching && unverified ? 'text-cod-red' : 'text-cod-muted'}`}>
+          {isFetching ? 'Verifying…' : !verified ? 'UID not found' : `${player.rank?.label || 'Unranked'} · Lv.${player.level}`}
         </span>
         {teamMembers?.length > 1 && <span className="text-xs text-cod-accent block">Squad: {teamMembers.length} members</span>}
       </div>
