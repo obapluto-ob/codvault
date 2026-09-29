@@ -132,8 +132,45 @@ router.delete('/:id/participants/:pid', requireAdmin, [
 // ── POST /api/tournaments/:id/start — admin starts tournament
 router.post('/:id/start', requireAdmin, [param('id').notEmpty()], validate, async (req, res) => {
   try {
+    // Check participant count before attempting to start
+    const tourn = await challonge(`/tournaments/${req.params.id}.json`);
+    const count = tourn.tournament.participants_count ?? 0;
+    if (count < 2) {
+      return res.status(422).json({ error: `Need at least 2 participants to start. Currently have ${count}.` });
+    }
     const data = await challonge(`/tournaments/${req.params.id}/start.json`, { method: 'POST' });
     res.json(data.tournament);
+  } catch (e) {
+    const status = e.message.includes('Need at least') ? 422 : 502;
+    res.status(status).json({ error: e.message });
+  }
+});
+
+// ── GET /api/tournaments/:id/matches — list matches
+router.get('/:id/matches', [param('id').notEmpty()], validate, async (req, res) => {
+  try {
+    const data = await challonge(`/tournaments/${req.params.id}/matches.json`);
+    const matches = (data || []).map(m => m.match);
+    res.json({ data: matches });
+  } catch (e) {
+    res.status(502).json({ error: e.message });
+  }
+});
+
+// ── PUT /api/tournaments/:id/matches/:mid — admin reports match result
+router.put('/:id/matches/:mid', requireAdmin, [
+  param('id').notEmpty(),
+  param('mid').notEmpty(),
+  body('winner_id').notEmpty(),
+  body('scores_csv').optional().isString().trim(),
+], validate, async (req, res) => {
+  try {
+    const { winner_id, scores_csv = '1-0' } = req.body;
+    const data = await challonge(`/tournaments/${req.params.id}/matches/${req.params.mid}.json`, {
+      method: 'PUT',
+      body: { match: { winner_id, scores_csv } },
+    });
+    res.json(data.match);
   } catch (e) {
     res.status(502).json({ error: e.message });
   }

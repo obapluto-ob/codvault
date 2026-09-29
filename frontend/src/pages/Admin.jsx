@@ -16,7 +16,8 @@ function LoginForm() {
     e.preventDefault();
     setError('');
     try {
-      const res = await fetch('/api/admin/verify', { headers: { Authorization: `Bearer ${token}` } });
+      const base = import.meta.env.VITE_API_URL ?? '';
+      const res = await fetch(`${base}/api/admin/verify`, { headers: { Authorization: `Bearer ${token}` } });
       if (res.ok) { login(token); }
       else { setError('Invalid token.'); }
     } catch { setError('Cannot reach server.'); }

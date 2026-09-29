@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Trophy, Users, Calendar, ExternalLink, ChevronDown, ChevronUp, UserPlus, Trash2, Play, Flag, CheckCircle, Loader, AlertCircle } from 'lucide-react';
+import { Trophy, Users, Calendar, ExternalLink, ChevronDown, ChevronUp, UserPlus, Trash2, Play, Flag, CheckCircle, Loader, AlertCircle, Swords, Crown } from 'lucide-react';
 import { tournamentsApi, codmPlayerApi } from '../lib/api';
 import { useAdmin } from '../lib/adminContext';
 import { Spinner, SeoHead, EmptyState } from '../components/ui';
@@ -187,6 +187,8 @@ function TournamentCard({ t }) {
     onSuccess: () => qc.invalidateQueries(['tournaments']),
   });
 
+  const canStart = (t.participants_count ?? 0) >= 2;
+
   const finalize = useMutation({
     mutationFn: () => tournamentsApi.finalize(t.url || t.id, token),
     onSuccess: () => qc.invalidateQueries(['tournaments']),
@@ -234,19 +236,33 @@ function TournamentCard({ t }) {
         <>
           {/* Admin controls */}
           {isAdmin && (
-            <div className="mt-4 pt-4 border-t border-cod-border flex gap-2 flex-wrap">
-              {['pending', 'checking_in', 'awaiting_review'].includes(t.state) && (
-                <button onClick={() => startTournament.mutate()} disabled={startTournament.isPending}
-                  className="btn-primary text-xs flex items-center gap-1.5 py-1.5 px-3">
-                  <Play size={12} /> {startTournament.isPending ? 'Starting…' : 'Start Tournament'}
-                </button>
-              )}
-              {t.state === 'underway' && (
-                <button onClick={() => finalize.mutate()} disabled={finalize.isPending}
-                  className="btn-ghost text-xs flex items-center gap-1.5 py-1.5 px-3">
-                  <Flag size={12} /> {finalize.isPending ? 'Finalizing…' : 'Finalize'}
-                </button>
-              )}
+            <div className="mt-4 pt-4 border-t border-cod-border flex flex-col gap-2">
+              <div className="flex gap-2 flex-wrap">
+                {['pending', 'checking_in', 'awaiting_review'].includes(t.state) && (
+                  <div className="flex flex-col gap-1">
+                    <button onClick={() => startTournament.mutate()} disabled={startTournament.isPending || !canStart}
+                      className="btn-primary text-xs flex items-center gap-1.5 py-1.5 px-3 disabled:opacity-40 disabled:cursor-not-allowed">
+                      <Play size={12} /> {startTournament.isPending ? 'Starting…' : 'Start Tournament'}
+                    </button>
+                    {!canStart && (
+                      <p className="text-cod-muted text-xs">
+                        Need at least 2 participants ({t.participants_count ?? 0} registered)
+                      </p>
+                    )}
+                    {startTournament.isError && (
+                      <p className="text-cod-red text-xs">
+                        {startTournament.error?.response?.data?.error || 'Failed to start tournament.'}
+                      </p>
+                    )}
+                  </div>
+                )}
+                {t.state === 'underway' && (
+                  <button onClick={() => finalize.mutate()} disabled={finalize.isPending}
+                    className="btn-ghost text-xs flex items-center gap-1.5 py-1.5 px-3">
+                    <Flag size={12} /> {finalize.isPending ? 'Finalizing…' : 'Finalize'}
+                  </button>
+                )}
+              </div>
             </div>
           )}
 

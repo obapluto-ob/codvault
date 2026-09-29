@@ -8,7 +8,7 @@ const authHeader = (token) => ({ headers: { Authorization: `Bearer ${token}` } }
 
 export const codesApi = {
   list: (params) => api.get('/codes', { params }).then(r => r.data),
-  listAdmin: (token, params) => api.get('/codes', { params: { ...params, _admin: token } }).then(r => r.data),
+  listAdmin: (token, params) => api.get('/codes', { params, ...authHeader(token) }).then(r => r.data),
   get: (id) => api.get(`/codes/${id}`).then(r => r.data),
   submit: (data) => api.post('/codes/submit', data).then(r => r.data),
   create: (data, token) => api.post('/codes', data, authHeader(token)).then(r => r.data),
@@ -61,6 +61,8 @@ export const codmPlayerApi = {
 export const tournamentsApi = {
   list: () => api.get('/tournaments').then(r => r.data),
   get: (id) => api.get(`/tournaments/${id}`).then(r => r.data),
+  getMatches: (id) => api.get(`/tournaments/${id}/matches`).then(r => r.data),
+  reportMatch: (id, mid, data, token) => api.put(`/tournaments/${id}/matches/${mid}`, data, authHeader(token)).then(r => r.data),
   register: (id, data) => api.post(`/tournaments/${id}/register`, data).then(r => r.data),
   removeParticipant: (id, pid, token) => api.delete(`/tournaments/${id}/participants/${pid}`, authHeader(token)).then(r => r.data),
   create: (data, token) => api.post('/tournaments', data, authHeader(token)).then(r => r.data),

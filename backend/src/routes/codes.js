@@ -11,7 +11,7 @@ const validate = (req, res, next) => {
   next();
 };
 
-// GET /api/codes — public sees active/expired only; admin passes _admin=1 to see pending too
+// GET /api/codes — public sees active/expired only; admin (Authorization header) can see pending too
 router.get('/', [
   query('status').optional().isIn(['active', 'expired', 'all', 'pending']),
   query('platform').optional().isString().trim(),
@@ -20,16 +20,15 @@ router.get('/', [
   query('q').optional().isString().trim(),
   query('page').optional().isInt({ min: 1 }).toInt(),
   query('limit').optional().isInt({ min: 1, max: 100 }).toInt(),
-  query('_admin').optional().isString(),
 ], validate, (req, res) => {
   const db = getDb();
-  const { status = 'all', platform, category, season, q, page = 1, limit = 20, _admin } = req.query;
+  const { status = 'all', platform, category, season, q, page = 1, limit = 20 } = req.query;
 
-  // Verify admin token if _admin flag passed
   const crypto = require('crypto');
   const ADMIN_TOKEN = process.env.ADMIN_TOKEN || 'codvault-admin-secret-change-in-production';
-  const isAdmin = _admin && (() => {
-    try { return crypto.timingSafeEqual(Buffer.from(_admin), Buffer.from(ADMIN_TOKEN)); } catch { return false; }
+  const auth = req.headers.authorization?.replace('Bearer ', '') || '';
+  const isAdmin = auth.length === ADMIN_TOKEN.length && (() => {
+    try { return crypto.timingSafeEqual(Buffer.from(auth), Buffer.from(ADMIN_TOKEN)); } catch { return false; }
   })();
 
   let sql = 'SELECT * FROM redeem_codes WHERE 1=1';

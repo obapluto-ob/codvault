@@ -5,6 +5,10 @@ services:
     rootDir: backend
     buildCommand: npm install
     startCommand: npm start
+    disk:
+      name: codvault-data
+      mountPath: /data
+      sizeGB: 1
     envVars:
       - key: NODE_VERSION
         value: 18.20.4
