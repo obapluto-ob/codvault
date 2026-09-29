@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Shield, Plus, Trash2, LogOut, Eye, EyeOff, Check } from 'lucide-react';
+import { Shield, Plus, Trash2, LogOut, Eye, EyeOff, Check, RefreshCw } from 'lucide-react';
 import { useAdmin } from '../lib/adminContext';
 import { codesApi, weaponsApi, tipsApi, settingsApi } from '../lib/api';
 import { Spinner, SeoHead } from '../components/ui';
@@ -471,6 +471,21 @@ const TABS = [
 export default function Admin() {
   const { isAdmin, logout } = useAdmin();
   const [tab, setTab] = useState('codes');
+  const [syncing, setSyncing] = useState(false);
+  const [syncMsg, setSyncMsg] = useState('');
+  const qc = useQueryClient();
+
+  const handleSync = async () => {
+    setSyncing(true);
+    setSyncMsg('');
+    // Invalidate every query key used across the app
+    await qc.invalidateQueries();
+    // Also refetch active queries immediately
+    await qc.refetchQueries({ type: 'active' });
+    setSyncing(false);
+    setSyncMsg('All data refreshed!');
+    setTimeout(() => setSyncMsg(''), 3000);
+  };
 
   if (!isAdmin) return <LoginForm />;
 
@@ -483,9 +498,18 @@ export default function Admin() {
             <Shield className="text-cod-accent" size={22} />
             <h1 className="text-xl font-bold">Admin Dashboard</h1>
           </div>
-          <button onClick={logout} className="btn-ghost flex items-center gap-2 text-sm">
-            <LogOut size={15} /> Logout
-          </button>
+          <div className="flex items-center gap-2">
+            {syncMsg && <span className="text-cod-green text-xs">{syncMsg}</span>}
+            <button onClick={handleSync} disabled={syncing}
+              className="btn-ghost flex items-center gap-2 text-sm disabled:opacity-50"
+              title="Force refresh all data from server">
+              <RefreshCw size={15} className={syncing ? 'animate-spin' : ''} />
+              {syncing ? 'Syncing…' : 'Sync All'}
+            </button>
+            <button onClick={logout} className="btn-ghost flex items-center gap-2 text-sm">
+              <LogOut size={15} /> Logout
+            </button>
+          </div>
         </div>
 
         <div className="flex gap-1 mb-6 bg-cod-surface rounded-xl p-1 overflow-x-auto">
