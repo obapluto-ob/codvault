@@ -11,14 +11,14 @@ const insertWeapon = db.prepare(
   'INSERT INTO weapons (name,slug,category,description,base_damage,fire_rate,range,mobility,control,image_url) VALUES (?,?,?,?,?,?,?,?,?,?)'
 );
 const weapons = [
-  ['AK-47',       'ak-47',       'Assault Rifle', 'High damage, moderate recoil. Best for mid-range.',          85, 55, 70, 60, 55, 'https://images.unsplash.com/photo-1595590424283-b8f17842773f?w=400&q=80'],
-  ['M4',          'm4',          'Assault Rifle', 'Balanced AR. Low recoil, consistent damage output.',         72, 70, 75, 68, 78, 'https://images.unsplash.com/photo-1614728894747-a83421e2b9c9?w=400&q=80'],
-  ['MP5',         'mp5',         'SMG',           'Fast TTK at close range. Dominant in BR and MP.',            65, 88, 45, 85, 72, 'https://images.unsplash.com/photo-1608501078713-8e445a709b39?w=400&q=80'],
-  ['Kilo 141',    'kilo-141',    'Assault Rifle', 'Low recoil laser beam. Meta pick for ranked.',               74, 68, 80, 65, 85, 'https://images.unsplash.com/photo-1543393716-375f47996a77?w=400&q=80'],
-  ['DL Q33',      'dl-q33',      'Sniper',        'One-shot chest sniper. Dominant in BR.',                     95, 20, 98, 40, 60, 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=400&q=80'],
-  ['Fennec',      'fennec',      'SMG',           'Fastest fire rate SMG. Shreds at close range.',              58, 98, 35, 90, 65, 'https://images.unsplash.com/photo-1584552539969-c8e2f9e0e8e0?w=400&q=80'],
-  ['Rytec AMR',   'rytec-amr',   'Sniper',        'Semi-auto sniper. Explosive rounds available.',              90, 35, 95, 38, 55, 'https://images.unsplash.com/photo-1574482620811-1aa16ffe3c82?w=400&q=80'],
-  ['Holger 26',   'holger-26',   'LMG',           'High capacity LMG. Suppressive fire specialist.',            78, 60, 72, 45, 62, 'https://images.unsplash.com/photo-1563986768494-4dee2763ff3f?w=400&q=80'],
+  ['AK-47',       'ak-47',       'Assault Rifle', 'High damage, moderate recoil. Best for mid-range.',          85, 55, 70, 60, 55, 'https://thumb.wikimedia.org/wikipedia/commons/thumb/6/65/AK-47_type_II_noBG.png/500px-AK-47_type_II_noBG.png'],
+  ['M4',          'm4',          'Assault Rifle', 'Balanced AR. Low recoil, consistent damage output.',         72, 70, 75, 68, 78, 'https://thumb.wikimedia.org/wikipedia/commons/thumb/6/68/PEO_M4_Carbine_RAS_M68_CCO.png/500px-PEO_M4_Carbine_RAS_M68_CCO.png'],
+  ['MP5',         'mp5',         'SMG',           'Fast TTK at close range. Dominant in BR and MP.',            65, 88, 45, 85, 72, 'https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4d/Heckler_%26_Koch_MP5-1.jpg/500px-Heckler_%26_Koch_MP5-1.jpg'],
+  ['Kilo 141',    'kilo-141',    'Assault Rifle', 'Low recoil laser beam. Meta pick for ranked.',               74, 68, 80, 65, 85, 'https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a9/M21A.jpg/500px-M21A.jpg'],
+  ['DL Q33',      'dl-q33',      'Sniper',        'One-shot chest sniper. Dominant in BR.',                     95, 20, 98, 40, 60, 'https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5a/Barrett-M82A1-Independence-Day-2017-IZE-048-white.jpg/500px-Barrett-M82A1-Independence-Day-2017-IZE-048-white.jpg'],
+  ['Fennec',      'fennec',      'SMG',           'Fastest fire rate SMG. Shreds at close range.',              58, 98, 35, 90, 65, 'https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d0/Kriss_Vector_SMG_Realistic.png/500px-Kriss_Vector_SMG_Realistic.png'],
+  ['Rytec AMR',   'rytec-amr',   'Sniper',        'Semi-auto sniper. Explosive rounds available.',              90, 35, 95, 38, 55, 'https://thumb.wikimedia.org/wikipedia/commons/thumb/c/cb/Remington_Model_700.JPG/500px-Remington_Model_700.JPG'],
+  ['Holger 26',   'holger-26',   'LMG',           'High capacity LMG. Suppressive fire specialist.',            78, 60, 72, 45, 62, 'https://thumb.wikimedia.org/wikipedia/commons/thumb/7/77/HK_21_LMG_Left_and_Right_noBG.png/500px-HK_21_LMG_Left_and_Right_noBG.png'],
 ];
 weapons.forEach(w => {
   const r = insertWeapon.run(...w);

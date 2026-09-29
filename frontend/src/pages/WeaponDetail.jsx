@@ -1,6 +1,6 @@
 import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Swords } from 'lucide-react';
 import { weaponsApi } from '../lib/api';
 import { Spinner, StatBar, SeoHead } from '../components/ui';
 
@@ -43,7 +43,11 @@ export default function WeaponDetail() {
         </Link>
 
         <div className="card mb-6">
-          <div className="flex items-start justify-between flex-wrap gap-3">
+          <div className="flex items-start gap-4 flex-wrap">
+            {weapon.image_url
+              ? <img src={weapon.image_url} alt={weapon.name} className="w-24 h-24 object-contain rounded-xl bg-cod-surface border border-cod-border shrink-0" />
+              : <div className="w-24 h-24 rounded-xl bg-cod-surface border border-cod-border flex items-center justify-center shrink-0"><Swords size={32} className="text-cod-muted" /></div>
+            }
             <div>
               <h1 className="text-2xl font-bold">{weapon.name}</h1>
               <span className="badge-info mt-1">{weapon.category}</span>

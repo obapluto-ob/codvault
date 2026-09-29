@@ -125,6 +125,29 @@ function initSchema() {
     CREATE INDEX IF NOT EXISTS idx_weapons_category ON weapons(category);
     CREATE INDEX IF NOT EXISTS idx_tips_category ON tips(category);
     CREATE INDEX IF NOT EXISTS idx_profiles_uid ON player_profiles(uid);
+
+    CREATE TABLE IF NOT EXISTS match_stats (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      challonge_tournament_id TEXT NOT NULL,
+      challonge_match_id INTEGER NOT NULL UNIQUE,
+      winner_id INTEGER,
+      scores_csv TEXT,
+      game_mode TEXT NOT NULL DEFAULT 'mp',
+      p1_kills INTEGER,
+      p1_damage INTEGER,
+      p1_placement INTEGER,
+      p2_kills INTEGER,
+      p2_damage INTEGER,
+      p2_placement INTEGER,
+      mvp_participant_id INTEGER,
+      mvp_name TEXT,
+      screenshot_url TEXT,
+      notes TEXT,
+      reported_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_match_stats_tournament ON match_stats(challonge_tournament_id);
+    CREATE INDEX IF NOT EXISTS idx_match_stats_match ON match_stats(challonge_match_id);
   `);
 
 }

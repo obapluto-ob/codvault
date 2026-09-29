@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { Search } from 'lucide-react';
+import { Search, Swords } from 'lucide-react';
 import { weaponsApi } from '../lib/api';
 import { Spinner, EmptyState, FilterBar, StatBar, SeoHead } from '../components/ui';
 
@@ -55,9 +55,15 @@ export default function Weapons() {
               <Link key={w.id} to={`/weapons/${w.slug}`}
                 className="card hover:border-cod-accent/50 transition-all group">
                 <div className="flex items-start justify-between mb-3">
-                  <div>
-                    <h2 className="font-bold text-white group-hover:text-cod-accent transition-colors">{w.name}</h2>
-                    <span className="badge-info mt-1">{w.category}</span>
+                  <div className="flex items-center gap-3">
+                    {w.image_url
+                      ? <img src={w.image_url} alt={w.name} className="w-12 h-12 object-contain rounded-lg bg-cod-surface border border-cod-border shrink-0" />
+                      : <div className="w-12 h-12 rounded-lg bg-cod-surface border border-cod-border flex items-center justify-center shrink-0"><Swords size={20} className="text-cod-muted" /></div>
+                    }
+                    <div>
+                      <h2 className="font-bold text-white group-hover:text-cod-accent transition-colors">{w.name}</h2>
+                      <span className="badge-info mt-1">{w.category}</span>
+                    </div>
                   </div>
                 </div>
                 {w.description && <p className="text-cod-muted text-xs mb-3 line-clamp-2">{w.description}</p>}

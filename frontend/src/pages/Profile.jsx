@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { User, Search, Save, Trash2, Sliders, Layout } from 'lucide-react';
 import { settingsApi, codmPlayerApi, profilesApi } from '../lib/api';
 import { Spinner, SeoHead } from '../components/ui';
+import { useProfileUid } from '../hooks/useProfileUid';
 
 function PlayerCard({ player }) {
   return (
@@ -33,8 +34,9 @@ function PlayerCard({ player }) {
 
 export default function Profile() {
   const qc = useQueryClient();
-  const [uidInput, setUidInput] = useState('');
-  const [activeUid, setActiveUid] = useState('');
+  const { uid: savedUid, setUid: persistUid, clearUid } = useProfileUid();
+  const [uidInput, setUidInput] = useState(savedUid);
+  const [activeUid, setActiveUid] = useState(savedUid);
   const [sensId, setSensId] = useState('');
   const [hudId, setHudId] = useState('');
   const [notes, setNotes] = useState('');
@@ -86,6 +88,7 @@ export default function Profile() {
     mutationFn: () => profilesApi.remove(activeUid),
     onSuccess: () => {
       qc.removeQueries(['profile', activeUid]);
+      clearUid();
       setActiveUid(''); setUidInput('');
       setSensId(''); setHudId(''); setNotes('');
     },
@@ -96,6 +99,7 @@ export default function Profile() {
     const uid = uidInput.trim();
     if (!uid) return;
     setSensId(''); setHudId(''); setNotes('');
+    persistUid(uid);
     setActiveUid(uid);
   };
 

@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { settingsApi } from '../lib/api';
+import { settingsApi, profilesApi } from '../lib/api';
 import { Spinner, EmptyState, FilterBar, SeoHead } from '../components/ui';
-import { Calculator, ChevronDown, ChevronUp } from 'lucide-react';
+import { Calculator, ChevronDown, ChevronUp, User } from 'lucide-react';
+import { useProfileUid } from '../hooks/useProfileUid';
 
 const PLAYSTYLES = [
   { value: '', label: 'All Styles' },
@@ -107,6 +108,15 @@ function SensCalculator() {
 export default function Sensitivity() {
   const [playstyle, setPlaystyle] = useState('');
   const [device, setDevice] = useState('');
+  const { uid } = useProfileUid();
+
+  const { data: profile } = useQuery({
+    queryKey: ['profile', uid],
+    queryFn: () => profilesApi.get(uid),
+    enabled: !!uid,
+    retry: false,
+    staleTime: 5 * 60_000,
+  });
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ['sensitivity', playstyle, device],
@@ -115,6 +125,10 @@ export default function Sensitivity() {
       device_type: device || undefined,
     }),
   });
+
+  const savedPreset = profile?.sensitivity_preset_id && data
+    ? data.find(s => s.id === profile.sensitivity_preset_id)
+    : null;
 
   return (
     <>
@@ -126,6 +140,23 @@ export default function Sensitivity() {
         </p>
 
         <SensCalculator />
+
+        {savedPreset && (
+          <div className="card border-cod-accent/30 mb-6">
+            <div className="flex items-center gap-2 mb-3">
+              <User size={14} className="text-cod-accent" />
+              <span className="text-xs text-cod-accent font-bold uppercase tracking-wider">Your Saved Preset — {savedPreset.title}</span>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+              {SENS_FIELDS.map(f => savedPreset[f.key] != null && (
+                <div key={f.key} className="bg-cod-surface rounded-lg px-3 py-2 flex items-center justify-between">
+                  <span className="text-cod-muted text-xs">{f.label}</span>
+                  <span className="text-cod-accent font-bold text-sm">{savedPreset[f.key]}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         <h2 className="font-bold text-white mb-3">Community Presets</h2>
         <div className="flex flex-col gap-3 mb-6">

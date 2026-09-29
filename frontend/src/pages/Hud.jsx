@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { settingsApi } from '../lib/api';
+import { settingsApi, profilesApi } from '../lib/api';
 import { Spinner, EmptyState, FilterBar, SeoHead } from '../components/ui';
-import { Smartphone, Tablet } from 'lucide-react';
+import { Smartphone, Tablet, User } from 'lucide-react';
+import { useProfileUid } from '../hooks/useProfileUid';
 
 const PLAYSTYLES = [
   { value: '', label: 'All Styles' },
@@ -34,11 +35,6 @@ function PhoneMockup({ layout, deviceType }) {
     <div className={`relative mx-auto bg-black rounded-[2rem] border-4 border-gray-700 overflow-hidden shadow-2xl
       ${isTablet ? 'w-full max-w-lg aspect-[16/10]' : 'w-64 aspect-[9/19]'}`}>
       <div className="absolute inset-1 rounded-[1.5rem] overflow-hidden bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900">
-        <img
-          src="https://images.unsplash.com/photo-1560253023-3ec5d502959f?w=600&q=60"
-          alt=""
-          className="absolute inset-0 w-full h-full object-cover opacity-30"
-        />
         <div className="absolute inset-0">
           <div className="absolute top-2 left-2 right-2 flex items-center gap-1">
             <div className="h-1.5 w-16 bg-gray-700 rounded-full overflow-hidden">
@@ -81,6 +77,15 @@ export default function Hud() {
   const [device, setDevice] = useState('');
   const [previewId, setPreviewId] = useState(null);
   const [previewDevice, setPreviewDevice] = useState('phone');
+  const { uid } = useProfileUid();
+
+  const { data: profile } = useQuery({
+    queryKey: ['profile', uid],
+    queryFn: () => profilesApi.get(uid),
+    enabled: !!uid,
+    retry: false,
+    staleTime: 5 * 60_000,
+  });
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ['hud', playstyle, device],
@@ -91,7 +96,9 @@ export default function Hud() {
   });
 
   const presets = data ?? [];
-  const activePreset = presets.find(h => h.id === previewId) ?? presets[0] ?? null;
+  // auto-select saved preset if no manual selection
+  const resolvedPreviewId = previewId ?? (profile?.hud_preset_id || null);
+  const activePreset = presets.find(h => h.id === resolvedPreviewId) ?? presets[0] ?? null;
   const activeLayout = activePreset?.hud_layout ?? {};
 
   return (
@@ -130,8 +137,8 @@ export default function Hud() {
                 {presets.map(h => (
                   <button key={h.id} onClick={() => setPreviewId(h.id)}
                     className={`px-3 py-1 rounded-lg text-xs font-medium capitalize transition-colors
-                      ${(previewId === h.id || (!previewId && presets[0]?.id === h.id)) ? 'bg-cod-accent text-black' : 'bg-cod-surface text-cod-muted hover:text-white'}`}>
-                    {h.title}
+                      ${activePreset?.id === h.id ? 'bg-cod-accent text-black' : 'bg-cod-surface text-cod-muted hover:text-white'}`}>
+                    {h.title}{profile?.hud_preset_id === h.id ? ' ★' : ''}
                   </button>
                 ))}
               </div>

@@ -23,7 +23,7 @@ router.get('/sensitivity', [
   if (playstyle) { sql += ' AND playstyle = ?'; params.push(playstyle); }
   if (device_type) { sql += ' AND device_type = ?'; params.push(device_type); }
   sql += ' ORDER BY playstyle';
-  res.json(db.prepare(sql).all(params));
+  res.json(db.prepare(sql).all(...params));
 });
 
 // POST /api/settings/sensitivity (admin)
@@ -65,7 +65,7 @@ router.get('/hud', [
   if (playstyle) { sql += ' AND playstyle = ?'; params.push(playstyle); }
   if (device_type) { sql += ' AND device_type = ?'; params.push(device_type); }
   sql += ' ORDER BY playstyle';
-  const results = db.prepare(sql).all(params);
+  const results = db.prepare(sql).all(...params);
   res.json(results.map(r => ({ ...r, hud_layout: JSON.parse(r.hud_layout) })));
 });
 

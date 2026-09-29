@@ -169,13 +169,13 @@ function WeaponsTab() {
   const { token } = useAdmin();
   const qc = useQueryClient();
   const { data: weapons, isLoading } = useQuery({ queryKey: ['admin-weapons'], queryFn: () => weaponsApi.list({}) });
-  const [form, setForm] = useState({ name: '', slug: '', category: 'Assault Rifle', description: '', base_damage: '', fire_rate: '', range: '', mobility: '', control: '' });
+  const [form, setForm] = useState({ name: '', slug: '', category: 'Assault Rifle', description: '', base_damage: '', fire_rate: '', range: '', mobility: '', control: '', image_url: '' });
   const [loadoutForm, setLoadoutForm] = useState({ weapon_id: '', title: '', playstyle: 'balanced', description: '', attachments: '', perks: '' });
   const [err, setErr] = useState('');
 
   const add = useMutation({
     mutationFn: () => weaponsApi.create({ ...form, base_damage: form.base_damage || undefined, fire_rate: form.fire_rate || undefined, range: form.range || undefined, mobility: form.mobility || undefined, control: form.control || undefined }, token),
-    onSuccess: () => { qc.invalidateQueries(['admin-weapons']); qc.invalidateQueries(['weapons']); setForm({ name: '', slug: '', category: 'Assault Rifle', description: '', base_damage: '', fire_rate: '', range: '', mobility: '', control: '' }); setErr(''); },
+    onSuccess: () => { qc.invalidateQueries(['admin-weapons']); qc.invalidateQueries(['weapons']); setForm({ name: '', slug: '', category: 'Assault Rifle', description: '', base_damage: '', fire_rate: '', range: '', mobility: '', control: '', image_url: '' }); setErr(''); },
     onError: (e) => setErr(e.response?.data?.error || 'Failed'),
   });
 
@@ -214,6 +214,7 @@ function WeaponsTab() {
             </select>
           </Field>
           <Field label="Description"><input className="input" value={form.description} onChange={f('description')} /></Field>
+          <Field label="Image URL"><input className="input" value={form.image_url} onChange={f('image_url')} placeholder="https://…" /></Field>
           {['base_damage','fire_rate','range','mobility','control'].map(k => (
             <Field key={k} label={k.replace('_', ' ')}>
               <input className="input" type="number" min="0" max="100" value={form[k]} onChange={f(k)} placeholder="0–100" />
@@ -352,7 +353,7 @@ function SettingsTab() {
   const { data: hudData } = useQuery({ queryKey: ['admin-hud'], queryFn: () => settingsApi.getHud({}) });
 
   const [sensForm, setSensForm] = useState({ title: '', playstyle: 'balanced', device_type: 'phone', fps_sensitivity: '', ads_sensitivity: '', scope_3x: '', scope_4x: '', sniper_scope: '', gyroscope: '', description: '' });
-  const [hudForm, setHudForm] = useState({ title: '', playstyle: 'balanced', device_type: 'phone', fire_button_size: '', fire_button_position: '', joystick_size: '', description: '' });
+  const [hudForm, setHudForm] = useState({ title: '', playstyle: 'balanced', device_type: 'phone', fire_button_size: '', fire_button_position: '', joystick_size: '', description: '', hud_layout: '' });
 
   const addSens = useMutation({
     mutationFn: () => settingsApi.addSensitivity(Object.fromEntries(Object.entries(sensForm).map(([k, v]) => [k, v === '' ? undefined : v])), token),
@@ -365,8 +366,12 @@ function SettingsTab() {
   });
 
   const addHud = useMutation({
-    mutationFn: () => settingsApi.addHud(Object.fromEntries(Object.entries(hudForm).map(([k, v]) => [k, v === '' ? undefined : v])), token),
-    onSuccess: () => { qc.invalidateQueries(['admin-hud']); setHudForm({ title: '', playstyle: 'balanced', device_type: 'phone', fire_button_size: '', fire_button_position: '', joystick_size: '', description: '' }); },
+    mutationFn: () => {
+      let layout = {};
+      try { if (hudForm.hud_layout.trim()) layout = JSON.parse(hudForm.hud_layout); } catch { throw new Error('Invalid HUD layout JSON'); }
+      return settingsApi.addHud({ ...Object.fromEntries(Object.entries(hudForm).map(([k, v]) => [k, v === '' ? undefined : v])), hud_layout: layout }, token);
+    },
+    onSuccess: () => { qc.invalidateQueries(['admin-hud']); setHudForm({ title: '', playstyle: 'balanced', device_type: 'phone', fire_button_size: '', fire_button_position: '', joystick_size: '', description: '', hud_layout: '' }); },
   });
 
   const delHud = useMutation({
@@ -432,6 +437,11 @@ function SettingsTab() {
           <Field label="Fire Position"><input className="input" value={hudForm.fire_button_position} onChange={hf('fire_button_position')} placeholder="Right side" /></Field>
           <Field label="Joystick Size %"><input className="input" type="number" value={hudForm.joystick_size} onChange={hf('joystick_size')} /></Field>
           <Field label="Description"><input className="input" value={hudForm.description} onChange={hf('description')} /></Field>
+          <Field label='HUD Layout JSON (optional)'>
+            <textarea className="input min-h-[80px] resize-y font-mono text-xs" value={hudForm.hud_layout} onChange={hf('hud_layout')}
+              placeholder={'{"fire":{"x":85,"y":70,"size":14},"joystick":{"x":15,"y":70,"size":14}}'} />
+            <p className="text-cod-muted text-xs mt-1">Keys: fire, aim, jump, crouch, reload, joystick, map, scorestreak. Values: x%, y%, size%</p>
+          </Field>
         </div>
         <button className="btn-primary mt-4 flex items-center gap-2" onClick={() => addHud.mutate()} disabled={addHud.isPending || !hudForm.title}>
           <Plus size={16} /> Add HUD Preset

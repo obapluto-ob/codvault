@@ -9,37 +9,37 @@ const FEATURES = [
     to: '/weapons', icon: <Swords size={20} />, title: 'Weapon Database',
     desc: 'Stats and meta loadouts for every CODM weapon.',
     accent: '#f5a623',
-    img: 'https://images.unsplash.com/photo-1511512578047-dfb367046420?w=700&q=80',
+    gradient: 'from-[#f5a62322] via-[#f5a62308] to-transparent',
   },
   {
     to: '/sensitivity', icon: <Sliders size={20} />, title: 'Sensitivity Calculator',
     desc: 'Enter your FPS sens — all scopes auto-calculated.',
     accent: '#00e5ff',
-    img: 'https://images.unsplash.com/photo-1593305841991-05c297ba4575?w=700&q=80',
+    gradient: 'from-[#00e5ff22] via-[#00e5ff08] to-transparent',
   },
   {
     to: '/tournaments', icon: <Trophy size={20} />, title: 'Tournaments',
     desc: 'Register for live CODM tournaments with your UID.',
     accent: '#ff3c3c',
-    img: 'https://images.unsplash.com/photo-1542751110-97427bbecf20?w=700&q=80',
+    gradient: 'from-[#ff3c3c22] via-[#ff3c3c08] to-transparent',
   },
   {
     to: '/profile', icon: <User size={20} />, title: 'Player Profile',
     desc: 'Real nickname, rank and level pulled from CODM.',
     accent: '#a855f7',
-    img: 'https://images.unsplash.com/photo-1614294149010-950b698f72c0?w=700&q=80',
+    gradient: 'from-[#a855f722] via-[#a855f708] to-transparent',
   },
   {
     to: '/guides', icon: <BookOpen size={20} />, title: 'Guides & Secrets',
     desc: 'Tips, Easter eggs, unlock guides and strategies.',
     accent: '#22c55e',
-    img: 'https://images.unsplash.com/photo-1560253023-3ec5d502959f?w=700&q=80',
+    gradient: 'from-[#22c55e22] via-[#22c55e08] to-transparent',
   },
   {
     to: '/codes', icon: <Tag size={20} />, title: 'Redeem Codes',
     desc: 'Community-submitted codes reviewed before going live.',
     accent: '#f5a623',
-    img: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=700&q=80',
+    gradient: 'from-[#f5a62322] via-[#f5a62308] to-transparent',
   },
 ];
 
@@ -82,15 +82,8 @@ export default function Home() {
       {/* ── HERO ── */}
       <section className="relative min-h-[94vh] flex items-center justify-center overflow-hidden bg-black">
 
-        {/* Base dark image */}
-        <div className="absolute inset-0">
-          <img
-            src="https://images.unsplash.com/photo-1542751371-adc38448a05e?w=1600&q=85"
-            alt=""
-            className="w-full h-full object-cover opacity-25 scale-105"
-            style={{ filter: 'saturate(0.4) brightness(0.6)' }}
-          />
-        </div>
+        {/* Base dark gradient */}
+        <div className="absolute inset-0 bg-gradient-to-br from-gray-950 via-black to-gray-900" />
 
         {/* Hex / grid overlay */}
         <div className="absolute inset-0 opacity-[0.07]"
@@ -199,11 +192,8 @@ export default function Home() {
               onMouseEnter={e => e.currentTarget.style.borderColor = f.accent + '80'}
               onMouseLeave={e => e.currentTarget.style.borderColor = ''}>
 
-              {/* Background image */}
-              <div className="absolute inset-0">
-                <img src={f.img} alt="" className="w-full h-full object-cover opacity-30 group-hover:opacity-40 group-hover:scale-105 transition-all duration-500" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-black/20" />
-              </div>
+              {/* Background gradient */}
+              <div className={`absolute inset-0 bg-gradient-to-br ${f.gradient}`} />
 
               {/* Top accent line */}
               <div className="absolute top-0 left-0 right-0 h-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
@@ -213,7 +203,7 @@ export default function Home() {
               <div className="absolute top-3 right-3 w-4 h-4 border-t border-r opacity-40 group-hover:opacity-80 transition-opacity"
                 style={{ borderColor: f.accent }} />
 
-              <div className="relative z-10 p-5 pt-24">
+              <div className="relative z-10 p-5 pt-16">
                 <div className="flex items-center gap-2.5 mb-2">
                   <span className="p-1.5 rounded-lg transition-colors"
                     style={{ color: f.accent, background: f.accent + '20' }}>
