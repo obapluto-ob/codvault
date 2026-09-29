@@ -201,38 +201,42 @@ function ParticipantRow({ p, isAdmin, onRemove, myUid }) {
   const rawMisc = p.misc || '';
   let uid = null;
   let teamMembers = null;
-  try { const parsed = JSON.parse(rawMisc); uid = parsed.uid; teamMembers = parsed.members; } catch { uid = rawMisc || p.name?.match(/\[(.+)\]$/)?.[1] || null; }
-  const displayName = p.name?.replace(/\s*\[.+\]$/, '') || p.name;
+  try { const parsed = JSON.parse(rawMisc); uid = parsed.uid; teamMembers = parsed.members; } catch { uid = rawMisc || p.name?.match(/\[(.+?)\]$/)?.[1] || null; }
+  const displayName = p.name?.replace(/\s*\[.+?\]$/, '') || p.name;
   const isMe = myUid && uid === myUid;
+  const hasUid = !!uid;
 
   const { data: player, isFetching, isError } = useQuery({
     queryKey: ['codm-player', uid],
     queryFn: () => codmPlayerApi.lookup(uid),
-    enabled: !!uid,
+    enabled: hasUid,
     retry: false,
     staleTime: 10 * 60_000,
   });
 
-  const unverified = !uid || (!isFetching && (isError || !player?.nickname));
-  const verified = !!player?.nickname;
+  // Only mark unverified if we have a UID and the lookup definitively failed
+  const lookupFailed = hasUid && !isFetching && (isError || !player?.nickname);
+  const verified = hasUid && !isFetching && player?.nickname;
 
   return (
     <div className={`flex items-center gap-3 rounded-lg px-3 py-2 ${
       isMe ? 'bg-cod-accent/10 border border-cod-accent/40' :
-      isFetching ? 'bg-cod-surface' :
-      unverified ? 'bg-cod-red/10 border border-cod-red/30' : 'bg-cod-surface'
+      lookupFailed ? 'bg-cod-red/10 border border-cod-red/30' : 'bg-cod-surface'
     }`}>
       {player?.rank?.imageUrl
         ? <img src={player.rank.imageUrl} alt={player.rank.label} className="w-7 h-7 object-contain shrink-0" />
         : <div className={`w-7 h-7 rounded-full shrink-0 flex items-center justify-center ${
-            !isFetching && unverified ? 'bg-cod-red/20' : 'bg-cod-border'
+            lookupFailed ? 'bg-cod-red/20' : 'bg-cod-border'
           }`}>
-            {!isFetching && unverified && <AlertCircle size={14} className="text-cod-red" />}
+            {lookupFailed && <AlertCircle size={14} className="text-cod-red" />}
           </div>}
       <div className="flex-1 min-w-0">
         <span className="text-white text-sm font-medium truncate block">{player?.nickname || displayName}{isMe ? ' (you)' : ''}</span>
-        <span className={`text-xs ${ !isFetching && unverified ? 'text-cod-red' : 'text-cod-muted'}`}>
-          {isFetching ? 'Verifying…' : !verified ? 'UID not found' : `${player.rank?.label || 'Unranked'} · Lv.${player.level}`}
+        <span className={`text-xs ${lookupFailed ? 'text-cod-red' : 'text-cod-muted'}`}>
+          {isFetching ? 'Verifying…'
+            : verified ? `${player.rank?.label || 'Unranked'} · Lv.${player.level}`
+            : lookupFailed ? 'UID not found'
+            : 'Registered'}
         </span>
         {teamMembers?.length > 1 && <span className="text-xs text-cod-accent block">Squad: {teamMembers.length} members</span>}
       </div>
