@@ -223,13 +223,18 @@ function ParticipantRow({ p, isAdmin, onRemove, myUid }) {
       isMe ? 'bg-cod-accent/10 border border-cod-accent/40' :
       lookupFailed ? 'bg-cod-red/10 border border-cod-red/30' : 'bg-cod-surface'
     }`}>
-      {player?.rank?.imageUrl
-        ? <img src={player.rank.imageUrl} alt={player.rank.label} className="w-7 h-7 object-contain shrink-0" />
-        : <div className={`w-7 h-7 rounded-full shrink-0 flex items-center justify-center ${
-            lookupFailed ? 'bg-cod-red/20' : 'bg-cod-border'
-          }`}>
-            {lookupFailed && <AlertCircle size={14} className="text-cod-red" />}
-          </div>}
+      <div className="relative shrink-0 w-9 h-9">
+        {player?.avatar
+          ? <img src={player.avatar} alt={player.nickname} className="w-9 h-9 rounded-full object-cover" />
+          : <div className={`w-9 h-9 rounded-full flex items-center justify-center ${
+              lookupFailed ? 'bg-cod-red/20' : 'bg-cod-border'
+            }`}>
+              {lookupFailed && <AlertCircle size={14} className="text-cod-red" />}
+            </div>}
+        {player?.rank?.imageUrl && (
+          <img src={player.rank.imageUrl} alt={player.rank.label} className="absolute -bottom-1 -right-1 w-4 h-4 object-contain" />
+        )}
+      </div>
       <div className="flex-1 min-w-0">
         <span className="text-white text-sm font-medium truncate block">{player?.nickname || displayName}{isMe ? ' (you)' : ''}</span>
         <span className={`text-xs ${lookupFailed ? 'text-cod-red' : 'text-cod-muted'}`}>
