@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   Trophy, Users, Calendar, ExternalLink, ChevronDown, ChevronUp,
   UserPlus, Trash2, Play, Flag, CheckCircle, Loader, AlertCircle,
-  Swords, Smartphone, Copy, Check, Star,
+  Swords, Smartphone, Copy, Check, Star, RefreshCw,
 } from 'lucide-react';
 import { tournamentsApi, codmPlayerApi } from '../lib/api';
 import { useAdmin } from '../lib/adminContext';
@@ -485,7 +485,9 @@ function TournamentCard({ t }) {
     onSuccess: () => qc.invalidateQueries(['tournaments']),
   });
 
-  const canStart = (t.participants_count ?? 0) >= 2;
+  const liveState = detail?.tournament?.state || t.state;
+  const liveCount = detail?.tournament?.participants_count ?? t.participants_count ?? 0;
+  const canStart = liveCount >= 2;
   const stateColor = { pending: 'text-cod-accent', underway: 'text-cod-green', complete: 'text-cod-muted', checking_in: 'text-yellow-400', awaiting_review: 'text-yellow-400' };
 
   return (
@@ -529,17 +531,17 @@ function TournamentCard({ t }) {
           {isAdmin && (
             <div className="mt-4 pt-4 border-t border-cod-border flex flex-col gap-2">
               <div className="flex gap-2 flex-wrap">
-                {['pending', 'checking_in', 'awaiting_review'].includes(t.state) && (
+                {['pending', 'checking_in', 'awaiting_review'].includes(liveState) && (
                   <div className="flex flex-col gap-1">
                     <button onClick={() => startTournament.mutate()} disabled={startTournament.isPending || !canStart}
                       className="btn-primary text-xs flex items-center gap-1.5 py-1.5 px-3 disabled:opacity-40 disabled:cursor-not-allowed">
                       <Play size={12} /> {startTournament.isPending ? 'Starting…' : 'Start Tournament'}
                     </button>
-                    {!canStart && <p className="text-cod-muted text-xs">Need ≥2 participants ({t.participants_count ?? 0} now)</p>}
+                    {!canStart && <p className="text-cod-muted text-xs">Need ≥2 participants ({liveCount} now)</p>}
                     {startTournament.isError && <p className="text-cod-red text-xs">{startTournament.error?.response?.data?.error || 'Failed.'}</p>}
                   </div>
                 )}
-                {t.state === 'underway' && (
+                {liveState === 'underway' && (
                   <button onClick={() => finalize.mutate()} disabled={finalize.isPending}
                     className="btn-ghost text-xs flex items-center gap-1.5 py-1.5 px-3">
                     <Flag size={12} /> {finalize.isPending ? 'Finalizing…' : 'Finalize Tournament'}
@@ -659,7 +661,9 @@ function CreateTournamentForm() {
 
 export default function Tournaments() {
   const { isAdmin } = useAdmin();
-  const { data, isLoading, isError, error } = useQuery({
+  const qc = useQueryClient();
+  const [syncing, setSyncing] = useState(false);
+  const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ['tournaments'],
     queryFn: () => tournamentsApi.list(),
     staleTime: 2 * 60_000,
@@ -671,9 +675,16 @@ export default function Tournaments() {
     <>
       <SeoHead title="CODM Tournaments" description="Live and upcoming Call of Duty: Mobile tournaments." />
       <div className="max-w-4xl mx-auto px-4 py-8">
-        <div className="flex items-center gap-2 mb-1">
-          <Trophy size={22} className="text-cod-accent" />
-          <h1 className="text-2xl font-bold">CODM Tournaments</h1>
+        <div className="flex items-center justify-between mb-1">
+          <div className="flex items-center gap-2">
+            <Trophy size={22} className="text-cod-accent" />
+            <h1 className="text-2xl font-bold">CODM Tournaments</h1>
+          </div>
+          <button onClick={async () => { setSyncing(true); await qc.invalidateQueries(); await qc.refetchQueries({ type: 'active' }); setSyncing(false); }}
+            disabled={syncing} className="btn-ghost flex items-center gap-1.5 text-sm disabled:opacity-50" title="Refresh">
+            <RefreshCw size={14} className={syncing ? 'animate-spin' : ''} />
+            {syncing ? 'Refreshing…' : 'Refresh'}
+          </button>
         </div>
         <p className="text-cod-muted text-sm mb-6">
           Register with your CODM UID. Expand a tournament to view matches, report results and launch CODM.
